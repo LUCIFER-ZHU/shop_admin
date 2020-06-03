@@ -47,33 +47,57 @@ export default {
   },
   methods: {
     startLogin() {
-      this.$refs.ruleForm.validate(valid => {
+      this.$refs.ruleForm.validate(async valid => {
         if (valid) {
           console.log('开始登陆')
-          // 发送请求
-          axios
-            .post('http://localhost:8888/api/private/v1/login', this.ruleForm)
-            .then(res => {
-              console.log(res)
-              if (res.data.meta.status === 200) {
-                // 把token保存到本地
-                localStorage.setItem('token', res.data.data.token)
-                // 成功提示
-                this.$message({
-                  message: '恭喜你，登录成功',
-                  type: 'success',
-                  duration: 800
-                })
-                // 跳转
-                this.$router.push('/home')
-              } else {
-                this.$message({
-                  message: res.data.meta.msg,
-                  type: 'error',
-                  duration: 1500
-                })
-              }
+
+          let res = await axios.post(
+            'http://localhost:8888/api/private/v1/login',
+            this.ruleForm
+          )
+          console.log(res)
+          if (res.data.meta.status === 200) {
+            // 把token保存到本地
+            localStorage.setItem('token', res.data.data.token)
+            // 成功提示
+            this.$message({
+              message: '恭喜你，登录成功',
+              type: 'success',
+              duration: 800
             })
+            // 跳转
+            this.$router.push('/home')
+          } else {
+            this.$message({
+              message: res.data.meta.msg,
+              type: 'error',
+              duration: 1500
+            })
+          }
+          // 发送请求
+          // axios
+          //   .post('http://localhost:8888/api/private/v1/login', this.ruleForm)
+          //   .then(res => {
+          //     console.log(res)
+          //     if (res.data.meta.status === 200) {
+          //       // 把token保存到本地
+          //       localStorage.setItem('token', res.data.data.token)
+          //       // 成功提示
+          //       this.$message({
+          //         message: '恭喜你，登录成功',
+          //         type: 'success',
+          //         duration: 800
+          //       })
+          //       // 跳转
+          //       this.$router.push('/home')
+          //     } else {
+          //       this.$message({
+          //         message: res.data.meta.msg,
+          //         type: 'error',
+          //         duration: 1500
+          //       })
+          //     }
+          //   })
         } else {
           alert('格式不正确')
           return false

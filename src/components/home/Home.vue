@@ -49,28 +49,45 @@
 <script>
 export default {
   methods: {
-    logout () {
-      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          // console.log('OK')\
-          localStorage.removeItem('token')
-          this.$message({
-            type: 'success',
-            message: '退出成功!',
-            duration: 800
-          })
-          this.$router.push('/login')
+    async logout () {
+      // 因为确认框，不点击await得不到promise类型的结果
+      try {
+        const p = await this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         })
-        .catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消退出'
-          })
+        // console.log('确定')
+        localStorage.removeItem('token')
+        this.$message({
+          type: 'success',
+          message: '退出成功!',
+          duration: 800
         })
+        this.$router.push('/login')
+      } catch (error) {
+        // console.log('取消')
+        this.$message({
+          type: 'info',
+          message: '已取消退出'
+        })
+      }
+      // .then(() => {
+      //   // console.log('OK')\
+      // localStorage.removeItem('token')
+      // this.$message({
+      //   type: 'success',
+      //   message: '退出成功!',
+      //   duration: 800
+      // })
+      // this.$router.push('/login')
+      // })
+      // .catch(() => {
+      // this.$message({
+      //   type: 'info',
+      //   message: '已取消退出'
+      // })
+      // })
     }
   }
 }
