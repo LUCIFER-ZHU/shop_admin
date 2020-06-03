@@ -52,7 +52,8 @@ export default {
     async logout () {
       // 因为确认框，不点击await得不到promise类型的结果
       try {
-        const p = await this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        // eslint-disable-next-line
+        const p = await this.$confirm('此操作将永久退出账户, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'

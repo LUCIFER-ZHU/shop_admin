@@ -21,9 +21,9 @@
       </el-input>
     </el-col>
     <el-col :span="8">
-      <el-button>添加用户</el-button>
+      <el-button @click="showAddUserDialog">添加用户</el-button>
     </el-col>
-    <el-col :span="8"></el-col>
+    <el-col :span="8"> </el-col>
   </el-row>
 
   <!-- 表格 -->
@@ -51,12 +51,9 @@
           size="mini"
           icon="el-icon-delete"
         ></el-button>
-        <el-button
-          type="success"
-          plain
-          size="mini"
-          icon="el-icon-check"
-        >分配角色</el-button>
+        <el-button type="success" plain size="mini" icon="el-icon-check"
+          >分配角色</el-button
+        >
       </template>
     </el-table-column>
   </el-table>
@@ -70,4 +67,32 @@
     :total="total"
   >
   </el-pagination>
+
+  <!-- 第一个对话框，添加用户对话框 -->
+  <el-dialog title="添加用户" :visible.sync="dialogAddUserFormVisible">
+    <!-- 表单 -->
+    <el-form
+      :rules="rules"
+      ref="addUserForm"
+      :model="addUserForm"
+      label-width="80px"
+    >
+      <el-form-item label="用户名" prop="username">
+        <el-input v-model="addUserForm.username"></el-input>
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input v-model="addUserForm.password"></el-input>
+      </el-form-item>
+      <el-form-item label="邮箱" prop="email">
+        <el-input v-model="addUserForm.email"></el-input>
+      </el-form-item>
+      <el-form-item label="手机" prop="mobile">
+        <el-input v-model="addUserForm.mobile"></el-input>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="dialogAddUserFormVisible = false">取 消</el-button>
+      <el-button type="primary" @click="addUser">确 定</el-button>
+    </div>
+  </el-dialog>
 </div>
