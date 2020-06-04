@@ -1,4 +1,4 @@
-import axios from 'axios'
+
 export default {
   data () {
     return {
@@ -62,6 +62,14 @@ export default {
             trigger: 'blur'
           }
         ]
+      },
+      // 显示编辑用户对话框
+      dialogEditUserFormVisible: false,
+      editUserForm: {
+        username: '',
+        email: '',
+        mobile: '',
+        id: ''
       }
     }
   },
@@ -71,19 +79,16 @@ export default {
   methods: {
     // 加载用户数据
     async loadUserData (pagenum = 1, query = '') {
-      const url = 'http://localhost:8888/api/private/v1/users'
+      const url = 'users'
       const config = {
         params: {
           query,
           // 应该是点击页码传过去页码
           pagenum,
           pagesize: 2
-        },
-        headers: {
-          Authorization: localStorage.getItem('token')
         }
       }
-      let res = await axios.get(url, config)
+      let res = await this.$axios.get(url, config)
 
       console.log(res)
       // 保存列表数据
@@ -93,8 +98,8 @@ export default {
       // 保存当前页码
       this.pagenum = res.data.data.pagenum
 
-      // axios
-      // .get('http://localhost:8888/api/private/v1/users', {
+      // this.$axios
+      // .get('users', {
       //   params: {
       //     query,
       //     // 应该是点击页码传过去页码
@@ -124,19 +129,14 @@ export default {
     startQuery () {
       this.loadUserData(1, this.queryText)
     },
+
     // 显示添加用户对话框
     showAddUserDialog () {
       this.dialogAddUserFormVisible = true
     },
     // 添加用户
     async addUser () {
-      let res = await axios.post(
-        'http://localhost:8888/api/private/v1/users',
-        this.addUserForm,
-        {
-          headers: {Authorization: localStorage.getItem('token')}
-        }
-      )
+      let res = await this.$axios.post('users', this.addUserForm)
       // console.log(res)
       if (res.data.meta.status === 201) {
         // 关闭对话框
@@ -152,7 +152,97 @@ export default {
         // 重置表单
         this.$refs.addUserForm.resetFields()
       } else {
+      }
+    },
+    // 监听添加用户对话框关闭
+    dialogClosed () {
+      // 重置表单
+      this.$refs.addUserForm.resetFields()
+    },
 
+    // 点击删除用户按钮
+    async delUser (id) {
+      try {
+        await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        // console.log('queding')
+        let res = await this.$axios.delete(`users/${id}`)
+        console.log(res)
+        if (res.data.meta.status === 200) {
+          // 1-刷新页面
+          this.loadUserData()
+          // 2-提示
+          this.$message({
+            message: '删除成功',
+            type: 'success',
+            duaration: 800
+          })
+        }
+      } catch (error) {
+        // console.log('quxiao')
+        this.$message({
+          message: '取消删除',
+          type: 'info',
+          duaration: 800
+        })
+      }
+    },
+
+    // 点击状态改变按钮
+    async stateChange (row) {
+      // console.log(row)
+      // eslint-disable-next-line
+      const { id, mg_state: mgState } = row
+      let res = await this.$axios.put(`users/${id}/state/${mgState}`, null)
+      // console.log(res)
+      if (res.data.meta.status === 200) {
+        // 1-刷新当前页面
+        this.loadUserData(this.pagenum)
+        // 2-提示
+        this.$message({
+          message: '修改成功',
+          type: 'success',
+          duaration: 800
+        })
+      }
+    },
+
+    // 显示编辑用户对话框
+    showEditUserDialog (row) {
+      // 1获取用户名邮箱电话
+      const {username, email, mobile, id} = row
+      // console.log(username)
+      // 2赋值给绑定表单的对象
+      this.editUserForm.username = username
+      this.editUserForm.email = email
+      this.editUserForm.mobile = mobile
+      this.editUserForm.id = id
+
+      this.dialogEditUserFormVisible = true
+    },
+    // 编辑用户
+    async editUser () {
+      // 1从编辑用户对象里拿数据
+      const {email, mobile, id} = this.editUserForm
+      let res = await this.$axios.put(`users/${id}`, {
+        email,
+        mobile
+      })
+      // console.log(res)
+      if (res.data.meta.status === 200) {
+        // 1-刷新当前页面
+        this.loadUserData(this.pagenum)
+        // 2-提示
+        this.$message({
+          message: '更新成功',
+          type: 'success',
+          duaration: 800
+        })
+        // 3-关闭对话框
+        this.dialogEditUserFormVisible = false
       }
     }
   }
