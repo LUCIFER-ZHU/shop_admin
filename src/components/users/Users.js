@@ -70,11 +70,22 @@ export default {
         email: '',
         mobile: '',
         id: ''
-      }
+      },
+
+      // 显示分配角色对话框
+      dialogAssignRoleVisible: false,
+      assignRoleForm: {
+        username: '',
+        id: 0,
+        rid: ''
+      },
+      // 角色列表
+      rolesData: []
     }
   },
   created () {
     this.loadUserData()
+    this.loadRolesData()
   },
   methods: {
     // 加载用户数据
@@ -210,10 +221,10 @@ export default {
       }
     },
 
-    // 显示编辑用户对话框
+    // 点击显示编辑用户对话框
     showEditUserDialog (row) {
       // 1获取用户名邮箱电话
-      const {username, email, mobile, id} = row
+      const { username, email, mobile, id } = row
       // console.log(username)
       // 2赋值给绑定表单的对象
       this.editUserForm.username = username
@@ -226,7 +237,7 @@ export default {
     // 编辑用户
     async editUser () {
       // 1从编辑用户对象里拿数据
-      const {email, mobile, id} = this.editUserForm
+      const { email, mobile, id } = this.editUserForm
       let res = await this.$axios.put(`users/${id}`, {
         email,
         mobile
@@ -243,6 +254,48 @@ export default {
         })
         // 3-关闭对话框
         this.dialogEditUserFormVisible = false
+      }
+    },
+
+    // 获取所有角色列表
+    async loadRolesData () {
+      let res = await this.$axios.get('roles')
+      console.log(res)
+      this.rolesData = res.data.data
+    },
+    // 点击按钮显示分配角色对话框
+    async showAssignRolesDialog (row) {
+      this.dialogAssignRoleVisible = true
+
+      // console.log(row)有id和rolename，没rid
+      const {id, username} = row
+      // 根据 ID 查询用户信息 这个接口有rid
+      let res = await this.$axios.get(`users/${id}`)
+      // console.log(res)
+      // 把三个对象赋值给assignRoleForm对象
+      this.assignRoleForm.username = username
+      this.assignRoleForm.id = id
+      this.assignRoleForm.rid = (res.data.data.rid == -1 ? '' : res.data.data.rid)
+    },
+    // 点击确定分配角色
+    async assignRole () {
+      // 接口需要两个参数 id rid
+      const {id, rid} = this.assignRoleForm
+      let res = await this.$axios.put(`users/${id}/role`, {
+        rid
+      })
+      // console.log(res)
+      if (res.data.meta.status === 200) {
+        // 1-关闭对话框
+        this.dialogAssignRoleVisible = false
+        // 2-提示
+        this.$message({
+          message: '分配成功',
+          type: 'success',
+          duaration: 800
+        })
+        // 3-刷新
+        this.loadUserData(this.pagenum)
       }
     }
   }
