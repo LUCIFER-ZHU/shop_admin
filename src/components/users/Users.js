@@ -84,7 +84,11 @@ export default {
     }
   },
   created () {
-    this.loadUserData()
+    // 获取 参数=>页码
+    const page = this.$route.params.page
+    console.log(page)
+
+    this.loadUserData(page)
     this.loadRolesData()
   },
   methods: {
@@ -134,6 +138,10 @@ export default {
     // 点击页码
     clickCurrentPage (curPage) {
       // console.log('点击了页码')
+
+      // 改变路口路径
+      this.$router.push('/users/' + curPage)
+
       this.loadUserData(curPage, this.queryText)
     },
     // 开始查询内容

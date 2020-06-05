@@ -15,29 +15,24 @@
       <el-aside width="200px">
         <el-menu
           :router="true"
-          default-active="2"
+          :default-active="$route.path"
           class="el-menu-vertical-demo"
           background-color="#545c64"
           text-color="#fff"
           active-text-color="#ffd04b"
         >
           <!-- 用户管理 -->
-          <el-submenu index="1">
+          <el-submenu :index="item.id+''" v-for="item in menus" :key="item.id">
             <template slot="title">
               <i class="el-icon-location"></i>
-              <span>用户管理</span>
+              <span>{{ item.authName }}</span>
             </template>
-            <el-menu-item index="/users">用户列表</el-menu-item>
-          </el-submenu>
-
-          <!-- 权限管理 -->
-          <el-submenu index="2">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>权限管理</span>
-            </template>
-            <el-menu-item index="roles">角色列表</el-menu-item>
-            <el-menu-item index="rights">权限列表</el-menu-item>
+            <el-menu-item
+              :index="'/'+item1.path"
+              v-for="item1 in item.children"
+              :key="item1.id"
+              >{{ item1.authName }}</el-menu-item
+            >
           </el-submenu>
         </el-menu>
       </el-aside>
@@ -48,16 +43,28 @@
 
 <script>
 export default {
+  data () {
+    return {
+      menus: []
+    }
+  },
+  created () {
+    this.loadMenuData()
+  },
   methods: {
     async logout () {
       // 因为确认框，不点击await得不到promise类型的结果
       try {
         // eslint-disable-next-line
-        const p = await this.$confirm('此操作将永久退出账户, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        })
+        const p = await this.$confirm(
+          '此操作将永久退出账户, 是否继续?',
+          '提示',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        )
         // console.log('确定')
         localStorage.removeItem('token')
         this.$message({
@@ -89,6 +96,12 @@ export default {
       //   message: '已取消退出'
       // })
       // })
+    },
+    // 加载菜单
+    async loadMenuData () {
+      let res = await this.$axios.get('menus')
+      console.log(res)
+      this.menus = res.data.data
     }
   }
 }
