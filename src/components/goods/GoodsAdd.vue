@@ -1,13 +1,9 @@
-<template>
-  <div>goods</div>
+<template src='./GoodsAdd.html'>
+
 </template>
 
-<script>
-export default {
+<script src='./GoodsAdd.js'>
 
-}
 </script>
 
-<style>
-
-</style>
+<style src='./GoodsAdd.less' lang="less" scoped></style>
